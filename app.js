@@ -4,8 +4,12 @@ const list = document.querySelector('#store-list');
 const status = document.querySelector('#load-status');
 const count = document.querySelector('#store-count');const regionFilter = document.querySelector('#region-filter');
 const dialog = document.querySelector('#add-dialog');
-const addPlaceForm = document.querySelector('#add-place-form');
-document.querySelector('#add-place').addEventListener('click', () => dialog.showModal());
+const addPlaceForm = document.querySelector('#add-place-form');document.querySelector('#add-place').addEventListener('click', () => {
+  addPlaceForm.reset();
+  addPlaceForm.elements.brand.value = '델리만쥬';
+  dialog.querySelector('h2').textContent = '장소 추가';
+  dialog.showModal();
+});
 document.querySelector('#cancel-add-place').addEventListener('click', () => dialog.close());
 
 addPlaceForm.addEventListener('submit', event => {
@@ -16,9 +20,11 @@ addPlaceForm.addEventListener('submit', event => {
   const verifiedAt = new Intl.DateTimeFormat('ko-KR', {
     timeZone: 'Asia/Seoul', dateStyle: 'long', timeStyle: 'medium'
   }).format(new Date());
-  const title = `[장소 추가] ${value('name')}`;
+  const isEdit = value('id') !== '-';
+  const title = `[장소 ${isEdit ? '수정' : '추가'}] ${value('name')}`;
   const body = [
     '## 장소 정보', '',
+    `- ID: ${value('id')}`,
     `- 점포명: ${value('name')}`,
     `- 주소: ${value('address')}`,
     `- 브랜드: ${value('brand')}`,
@@ -88,6 +94,16 @@ function renderStore(store) {
     fields.append(element('dt', label), entry);
   }
   fields.append(element('dt', ''), feedback);
+  const edit = element('button', '정보 수정 제안', 'edit-button');
+  edit.type = 'button';
+  edit.addEventListener('click', () => {
+    for (const field of ['id', 'name', 'address', 'brand', 'phone', 'hours', 'note']) {
+      addPlaceForm.elements[field].value = store[field] || '';
+    }
+    dialog.querySelector('h2').textContent = '정보 수정 제안';
+    dialog.showModal();
+  });
+  fields.append(element('dt', ''), edit);
   body.append(fields);
   details.append(summary, body);
   return details;
