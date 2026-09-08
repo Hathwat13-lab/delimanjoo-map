@@ -46,7 +46,7 @@ function renderStore(store) {
           feedback.textContent = '주소를 선택해 직접 복사해 주세요.';
         }
       });
-      const query = encodeURIComponent(`${store.name} ${store.address}`);
+      const query = encodeURIComponent(store.address);
       const naver = element('a', '네이버');
       naver.href = `https://map.naver.com/p/search/${query}`;
       const kakao = element('a', '카카오');
