@@ -2,10 +2,35 @@
 
 const list = document.querySelector('#store-list');
 const status = document.querySelector('#load-status');
-const count = document.querySelector('#store-count');
-const regionFilter = document.querySelector('#region-filter');
+const count = document.querySelector('#store-count');const regionFilter = document.querySelector('#region-filter');
 const dialog = document.querySelector('#add-dialog');
+const addPlaceForm = document.querySelector('#add-place-form');
 document.querySelector('#add-place').addEventListener('click', () => dialog.showModal());
+document.querySelector('#cancel-add-place').addEventListener('click', () => dialog.close());
+
+addPlaceForm.addEventListener('submit', event => {
+  event.preventDefault();
+  if (!addPlaceForm.reportValidity()) return;
+  const data = new FormData(addPlaceForm);
+  const value = name => String(data.get(name) || '').trim() || '-';
+  const verifiedAt = new Intl.DateTimeFormat('ko-KR', {
+    timeZone: 'Asia/Seoul', dateStyle: 'long', timeStyle: 'medium'
+  }).format(new Date());
+  const title = `[장소 추가] ${value('name')}`;
+  const body = [
+    '## 장소 정보', '',
+    `- 점포명: ${value('name')}`,
+    `- 주소: ${value('address')}`,
+    `- 브랜드: ${value('brand')}`,
+    `- 전화번호: ${value('phone')}`,
+    `- 영업시간: ${value('hours')}`,
+    `- 비고: ${value('note')}`,
+    `- 확인 일시: ${verifiedAt} (한국 시간)`, '',
+    '입력한 정보가 정확한지 확인했습니다.'
+  ].join('\n');
+  const params = new URLSearchParams({ title, body });
+  window.location.href = `https://github.com/Hathwat13-lab/delimanjoo-map/issues/new?${params}`;
+});
 
 function element(tag, text, className) {
   const node = document.createElement(tag);
