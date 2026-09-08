@@ -37,9 +37,16 @@ a, .text-button { color: #0759a5; text-decoration: underline; text-underline-off
 .add-place-box { display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-top: 28px; padding: 13px 14px; border: 1px solid #ccc; background: #f7f7f7; font-size: .88rem; }
 footer { margin-top: 38px; border-top: 1px solid #ccc; padding-top: 15px; font-size: .75rem; color: #666; }
 footer p { margin: 4px 0; }
-dialog { border: 1px solid #777; border-radius: 3px; padding: 24px; max-width: 420px; width: calc(100% - 32px); color: #222; background: #fff; }
+dialog { border: 1px solid #777; border-radius: 3px; padding: 24px; max-width: 500px; width: calc(100% - 32px); color: #222; background: #fff; }
 dialog::backdrop { background: #0006; }
-dialog p { color: #555; font-size: .9rem; }
-dialog form { text-align: right; margin-top: 24px; }
+dialog p { color: #555; font-size: .9rem; }dialog form { margin-top: 18px; }
+dialog label { display: block; margin-top: 11px; font-size: .84rem; font-weight: 700; }
+dialog input, dialog textarea { display: block; width: 100%; margin-top: 4px; padding: 7px 8px; border: 1px solid #999; border-radius: 2px; background: #fff; color: #222; font: inherit; font-weight: 400; }
+dialog textarea { resize: vertical; }
+dialog strong { color: #b00020; }
+.form-note { margin: 14px 0 0; font-size: .78rem; }
+.dialog-actions { display: flex; justify-content: flex-end; gap: 7px; margin-top: 18px; }
+.primary-button { border-color: #174f86; background: #1769aa; color: #fff; }
+.primary-button:hover { background: #10558e; }
 @media (max-width: 540px) { .container { padding: 24px 13px 20px; } header { padding-bottom: 20px; } h1 { font-size: 1.45rem; } summary { padding: 12px 6px; gap: 8px; } .brand { display: none; } .store-detail { padding: 12px 7px 14px; } dl { grid-template-columns: 65px minmax(0, 1fr); gap: 9px 8px; } .address-line { display: block; } .address-actions { display: flex; margin-top: 5px; } .add-place-box { align-items: flex-start; } }
 
