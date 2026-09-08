@@ -29,6 +29,7 @@
     <h2 id="dialog-title">장소 추가</h2>
     <p id="dialog-description">입력한 내용으로 GitHub 제보 글을 만듭니다. 제출 전에 내용을 다시 확인할 수 있습니다.</p>
     <form id="add-place-form">
+      <input type="hidden" name="id">
       <label>점포명 <strong aria-hidden="true">*</strong><input name="name" required maxlength="80" autocomplete="organization"></label>
       <label>주소 <strong aria-hidden="true">*</strong><input name="address" required maxlength="160" autocomplete="street-address"></label>
       <label>브랜드<input name="brand" maxlength="50" value="델리만쥬"></label>
