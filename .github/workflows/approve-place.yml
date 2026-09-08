@@ -1,0 +1,31 @@
+name: Approve place report
+
+on:
+  issues:
+    types: [labeled]
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  apply:
+    if: github.event.label.name == 'approved'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply approved report
+        env:
+          ISSUE_JSON: ${{ toJson(github.event.issue) }}
+        run: node scripts/process-approved-issue.mjs
+      - name: Commit data change
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add data/stores.json
+          git diff --cached --quiet || git commit -m "Apply approved place report #${{ github.event.issue.number }}"
+          git push
+      - name: Close approved issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh issue close "${{ github.event.issue.number }}" --comment "승인되어 사이트 데이터에 반영했습니다."
