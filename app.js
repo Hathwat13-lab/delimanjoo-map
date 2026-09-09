@@ -2,40 +2,74 @@
 
 const list = document.querySelector('#store-list');
 const status = document.querySelector('#load-status');
-const count = document.querySelector('#store-count');const regionFilter = document.querySelector('#region-filter');
+const count = document.querySelector('#store-count');
+const regionFilter = document.querySelector('#region-filter');
 const dialog = document.querySelector('#add-dialog');
-const addPlaceForm = document.querySelector('#add-place-form');document.querySelector('#add-place').addEventListener('click', () => {
+const addPlaceForm = document.querySelector('#add-place-form');
+const reportStatus = document.querySelector('#report-status');
+const reportEndpoint = String(window.MANJOO_REPORT_ENDPOINT || '').trim();
+const REPORT_COOLDOWN_MS = 30 * 1000;
+let formOpenedAt = 0;
+
+function openReportDialog(mode, store = {}) {
   addPlaceForm.reset();
-  addPlaceForm.elements.brand.value = '델리만쥬';
-  dialog.querySelector('h2').textContent = '장소 추가';
+  for (const field of ['id', 'name', 'address', 'brand', 'phone', 'hours', 'note']) {
+    addPlaceForm.elements[field].value = store[field] || '';
+  }
+  addPlaceForm.elements.brand.value ||= '델리만쥬';
+  addPlaceForm.elements.reportType.value = mode;
+  dialog.querySelector('h2').textContent = mode === 'edit' ? '정보 수정 제안' : '장소 추가';
+  reportStatus.textContent = '';
+  formOpenedAt = Date.now();
   dialog.showModal();
+}
+
+document.querySelector('#add-place').addEventListener('click', () => {
+  openReportDialog('add');
 });
 document.querySelector('#cancel-add-place').addEventListener('click', () => dialog.close());
 
-addPlaceForm.addEventListener('submit', event => {
+addPlaceForm.addEventListener('submit', async event => {
   event.preventDefault();
   if (!addPlaceForm.reportValidity()) return;
+  if (!reportEndpoint) {
+    reportStatus.textContent = '제보함 연결을 준비하고 있습니다. 잠시 후 다시 이용해 주세요.';
+    return;
+  }
   const data = new FormData(addPlaceForm);
-  const value = name => String(data.get(name) || '').trim() || '-';
-  const verifiedAt = new Intl.DateTimeFormat('ko-KR', {
-    timeZone: 'Asia/Seoul', dateStyle: 'long', timeStyle: 'medium'
-  }).format(new Date());
-  const isEdit = value('id') !== '-';
-  const title = `[장소 ${isEdit ? '수정' : '추가'}] ${value('name')}`;
-  const body = [
-    '## 장소 정보', '',
-    `- ID: ${value('id')}`,
-    `- 점포명: ${value('name')}`,
-    `- 주소: ${value('address')}`,
-    `- 브랜드: ${value('brand')}`,
-    `- 전화번호: ${value('phone')}`,
-    `- 영업시간: ${value('hours')}`,
-    `- 비고: ${value('note')}`,
-    `- 확인 일시: ${verifiedAt} (한국 시간)`, '',
-    '입력한 정보가 정확한지 확인했습니다.'
-  ].join('\n');
-  const params = new URLSearchParams({ title, body });
-  window.location.href = `https://github.com/Hathwat13-lab/delimanjoo-map/issues/new?${params}`;
+  if (String(data.get('website') || '').trim() || Date.now() - formOpenedAt < 1500) return;
+
+  const lastReportAt = Number(localStorage.getItem('manjooLastReportAt') || 0);
+  if (Date.now() - lastReportAt < REPORT_COOLDOWN_MS) {
+    reportStatus.textContent = '연속으로 제출할 수 없습니다. 잠시 후 다시 시도해 주세요.';
+    return;
+  }
+
+  let clientId = localStorage.getItem('manjooReportClientId');
+  if (!clientId) {
+    clientId = crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`;
+    localStorage.setItem('manjooReportClientId', clientId);
+  }
+  data.set('clientId', clientId);
+  data.set('submittedAt', new Date().toISOString());
+  const submitButton = addPlaceForm.querySelector('[type="submit"]');
+  submitButton.disabled = true;
+  reportStatus.textContent = '제보를 보내고 있습니다.';
+  try {
+    await fetch(reportEndpoint, { method: 'POST', mode: 'no-cors', body: new URLSearchParams(data) });
+    localStorage.setItem('manjooLastReportAt', String(Date.now()));
+    addPlaceForm.reset();
+    reportStatus.textContent = '제보를 받았습니다. 확인 후 목록에 반영하겠습니다.';
+    submitButton.textContent = '전송 완료';
+    setTimeout(() => {
+      dialog.close();
+      submitButton.textContent = '제보 보내기';
+    }, 1400);
+  } catch {
+    reportStatus.textContent = '제보를 보내지 못했습니다. 인터넷 연결을 확인하고 다시 시도해 주세요.';
+  } finally {
+    submitButton.disabled = false;
+  }
 });
 
 function element(tag, text, className) {
@@ -97,11 +131,7 @@ function renderStore(store) {
   const edit = element('button', '정보 수정 제안', 'edit-button');
   edit.type = 'button';
   edit.addEventListener('click', () => {
-    for (const field of ['id', 'name', 'address', 'brand', 'phone', 'hours', 'note']) {
-      addPlaceForm.elements[field].value = store[field] || '';
-    }
-    dialog.querySelector('h2').textContent = '정보 수정 제안';
-    dialog.showModal();
+    openReportDialog('edit', store);
   });
   fields.append(element('dt', ''), edit);
   body.append(fields);
@@ -141,4 +171,3 @@ async function loadStores() {
   }
 }
 loadStores();
-
