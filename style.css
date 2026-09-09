@@ -12,7 +12,15 @@ button:hover { background: #eee; }
 .list-heading { display: flex; justify-content: space-between; align-items: center; padding-top: 22px; gap: 12px; }
 h2 { font-size: 1.05rem; margin: 0; }
 #store-count { font-size: .8rem; color: #666; }
-.filter-bar { display: flex; align-items: center; gap: 8px; margin-top: 16px; padding: 9px 10px; background: #f3f5f7; border: 1px solid #d8dde2; font-size: .85rem; }
+.filter-bar { display: grid; gap: 10px; margin-top: 16px; padding: 10px; background: #f3f5f7; border: 1px solid #d8dde2; font-size: .85rem; }
+.region-filter { display: flex; align-items: center; gap: 8px; }
+.brand-filter { min-width: 0; margin: 0; padding: 0; border: 0; }
+.brand-filter legend { float: left; width: 52px; padding: 6px 0; color: #444; }
+.brand-options { display: flex; flex-wrap: wrap; gap: 5px; }
+.brand-option { display: inline-flex; align-items: center; gap: 5px; background: #fff; }
+.brand-option[aria-pressed="true"] { border-color: #174f86; background: #1769aa; color: #fff; }
+.brand-count { min-width: 1.2em; padding: 0 4px; border-radius: 8px; background: #e5e8eb; color: #555; font-size: .72rem; text-align: center; }
+.brand-option[aria-pressed="true"] .brand-count { background: #fff; color: #174f86; }
 select { min-width: 120px; padding: 5px 24px 5px 7px; border: 1px solid #aaa; background: #fff; font: inherit; }
 .hint { font-size: .8rem; margin: 8px 0 12px; }
 details { border-top: 1px solid #bbb; }
@@ -53,4 +61,4 @@ dialog strong { color: #b00020; }
 .primary-button { border-color: #174f86; background: #1769aa; color: #fff; }
 .primary-button:hover { background: #10558e; }
 .edit-button { justify-self: start; margin-top: 4px; }
-@media (max-width: 540px) { .container { padding: 24px 13px 20px; } header { padding-bottom: 20px; } h1 { font-size: 1.45rem; } summary { padding: 12px 6px; gap: 8px; } .brand { display: none; } .store-detail { padding: 12px 7px 14px; } dl { grid-template-columns: 65px minmax(0, 1fr); gap: 9px 8px; } .address-line { display: block; } .address-actions { display: flex; margin-top: 5px; } .add-place-box { align-items: flex-start; } }
+@media (max-width: 540px) { .container { padding: 24px 13px 20px; } header { padding-bottom: 20px; } h1 { font-size: 1.45rem; } .brand-filter legend { float: none; width: auto; padding: 0 0 6px; } summary { padding: 12px 6px; gap: 8px; } summary .brand { display: none; } .store-detail { padding: 12px 7px 14px; } dl { grid-template-columns: 65px minmax(0, 1fr); gap: 9px 8px; } .address-line { display: block; } .address-actions { display: flex; margin-top: 5px; } .add-place-box { align-items: flex-start; } }

@@ -4,11 +4,14 @@ const list = document.querySelector('#store-list');
 const status = document.querySelector('#load-status');
 const count = document.querySelector('#store-count');
 const regionFilter = document.querySelector('#region-filter');
+const brandFilter = document.querySelector('#brand-filter');
 const dialog = document.querySelector('#add-dialog');
 const addPlaceForm = document.querySelector('#add-place-form');
 const reportStatus = document.querySelector('#report-status');
 const reportEndpoint = String(window.MANJOO_REPORT_ENDPOINT || '').trim();
 const REPORT_COOLDOWN_MS = 30 * 1000;
+const FEATURED_BRANDS = ['델리만쥬', '만쥬킹', '만쥬하나'];
+let selectedBrand = '';
 let formOpenedAt = 0;
 
 function openReportDialog(mode, store = {}) {
@@ -83,6 +86,33 @@ function regionOf(address) {
   return address.trim().split(/\s+/)[0] || '기타';
 }
 
+function brandGroup(brand) {
+  const normalized = String(brand || '').trim();
+  return FEATURED_BRANDS.includes(normalized) ? normalized : '기타';
+}
+
+function buildBrandFilter(stores) {
+  const options = ['', ...FEATURED_BRANDS, '기타'];
+  brandFilter.replaceChildren(...options.map(value => {
+    const button = element('button', value || '전체', 'brand-option');
+    button.type = 'button';
+    button.dataset.brand = value;
+    button.setAttribute('aria-pressed', String(value === selectedBrand));
+    const total = value
+      ? stores.filter(store => brandGroup(store.brand) === value).length
+      : stores.length;
+    button.append(element('span', String(total), 'brand-count'));
+    button.addEventListener('click', () => {
+      selectedBrand = value;
+      for (const option of brandFilter.querySelectorAll('button')) {
+        option.setAttribute('aria-pressed', String(option.dataset.brand === selectedBrand));
+      }
+      renderStores(stores);
+    });
+    return button;
+  }));
+}
+
 function renderStore(store) {
   const details = element('details');
   const summary = element('summary');
@@ -141,9 +171,13 @@ function renderStore(store) {
 
 function renderStores(stores) {
   const region = regionFilter.value;
-  const shown = region ? stores.filter(store => regionOf(store.address) === region) : stores;
+  const shown = stores.filter(store =>
+    (!region || regionOf(store.address) === region) &&
+    (!selectedBrand || brandGroup(store.brand) === selectedBrand)
+  );
   list.replaceChildren(...shown.map(renderStore));
-  count.textContent = region ? `${region} ${shown.length}곳 / 전체 ${stores.length}곳` : `등록 장소 ${stores.length}곳`;
+  const scope = [region, selectedBrand].filter(Boolean).join(' · ');
+  count.textContent = scope ? `${scope} ${shown.length}곳 / 전체 ${stores.length}곳` : `등록 장소 ${stores.length}곳`;
   status.textContent = shown.length ? '' : '해당 지역에 등록된 장소가 없습니다.';
   status.hidden = shown.length > 0;
 }
@@ -162,6 +196,7 @@ async function loadStores() {
     }));
     regionFilter.disabled = false;
     regionFilter.addEventListener('change', () => renderStores(stores));
+    buildBrandFilter(stores);
     renderStores(stores);
   } catch {
     count.textContent = '목록 확인 필요';
