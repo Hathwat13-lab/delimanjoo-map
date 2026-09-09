@@ -11,8 +11,8 @@
 - [x] Google 계정에 제보함과 Apps Script 생성
 - [x] 익명 실행 권한으로 웹 앱 배포
 - [x] 배포 주소 연결
-- [ ] 실제 제보 저장 확인
-- [ ] GitHub Pages에 배포
+- [x] 실제 제보 저장 확인
+- [x] GitHub Pages에 배포
 
 ## 2. 만쥬DB 개편과 브랜드 필터
 
